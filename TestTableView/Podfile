@@ -1,0 +1,19 @@
+use_frameworks!
+platform :ios, '9.0'
+
+target 'TestTableView' do
+
+
+
+  # Pods for TestTableView
+
+  target 'TestTableViewTests' do
+
+  end
+
+  target 'TestTableViewUITests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
+end

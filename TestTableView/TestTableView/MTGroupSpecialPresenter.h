@@ -8,25 +8,34 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "MTGroupSpecialTableView.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@class MTGroupSpecialPresenter;
 
 @protocol MTGroupSpecialPresenterDelegate <NSObject>
-/**
- 改变tableview的frame
- 
- @param isNeedFrame 是否需要改变frame
- @param distanceY :tableview 距离顶部的y 值
- @param limitY :tableview 距离顶部的y 值
- */
--(void)isNeedChangeFrame:(BOOL)isNeedFrame distanceY:(CGFloat)distanceY limitY:(CGFloat)limitY;
 
+/**
+ 改变tableview的约束
+
+ @param presenter 当前对象
+ @param isNeed 是否需要改变
+ */
+-(void)mtGroupPresenter:(MTGroupSpecialPresenter *)presenter changeTableViewTopAndNeedTableView:(BOOL)isNeed;
 
 @end
+
 @interface MTGroupSpecialPresenter : NSObject
 
 @property (nonatomic, weak) id<MTGroupSpecialPresenterDelegate> presenerDelegate;
 
+/**
+ 显示@成员的tableview
+ */
+@property (nonatomic, strong) MTGroupSpecialTableView *specialTableView;
+/**
+ 键盘的高度
+ */
+@property (nonatomic, assign) CGFloat keyBoardH;
 
 #pragma mark - 实现的方法
 /**
@@ -41,12 +50,19 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  配置tableview相关的东西
 
- @param tableView tableview
  */
--(void)configureTableView:(UITableView *)tableView;
+-(void)configureTableView;
+/**
+ 移除操作
+ */
+-(void)removeAll;
 
+/**
+ 键盘是弹起来还是没有弹起来
 
+ @param isUp Yes：弹起来
+ */
+-(void)keyBoardChangeIsUP:(BOOL)isUp;
 
 @end
 
-NS_ASSUME_NONNULL_END

@@ -1,6 +1,6 @@
 //
 //  MTGroupSpecialPresenter.m
-//  TestTableView
+//  TestspecialTableView
 //
 //  Created by 塞纳 on 2019/5/3.
 //  Copyright © 2019年 saina. All rights reserved.
@@ -8,24 +8,33 @@
 
 #import "MTGroupSpecialPresenter.h"
 
-
-
-
-@interface MTGroupSpecialPresenter ()<UITableViewDataSource,UITableViewDelegate>
-
-@property (nonatomic, strong) UITableView *tableView;
+@interface MTGroupSpecialPresenter ()<UITableViewDelegate,UITableViewDataSource>
 /**
- 是否需要改变tableview的frame
+ 数据源
  */
-@property (nonatomic, assign) BOOL isNeedChangeFrame;
+@property (nonatomic, strong) NSMutableArray *specialDataArray;
 /**
- tableivew的最后滚动位置
+ 是不是整屏幕都放不完cell的那种类型
  */
-@property (nonatomic, assign) CGFloat lastOffsetY;
+@property (nonatomic, assign) BOOL isMaxType;
+/**
+ tableview的headerview的高度
+ */
+@property (nonatomic, assign) CGFloat specialHeaderViewH;
 
 
 @end
 @implementation MTGroupSpecialPresenter
+
+- (NSMutableArray *)specialDataArray {
+    if (!_specialDataArray) {
+        _specialDataArray = [NSMutableArray array];
+        for (NSInteger index = 0; index < 100; index ++) {
+            [_specialDataArray addObject:[NSString stringWithFormat:@"ttt -- %zd",index]];
+        }
+    }
+    return _specialDataArray;
+}
 /**
  是否出现@的tableview界面
  
@@ -38,33 +47,97 @@
     if ([singleText isEqualToString:@"@"]) {
         return YES;
     }
+    if (self.specialTableView) {
+        if ([self.presenerDelegate respondsToSelector:@selector(mtGroupPresenter:changeTableViewTopAndNeedTableView:)]) {
+            [self.presenerDelegate mtGroupPresenter:self changeTableViewTopAndNeedTableView:NO];
+        }
+    }
     return NO;
 }
 /**
  配置tableview相关的东西
- 
- @param tableView tableview
  */
--(void)configureTableView:(UITableView *)tableView{
+-(void)configureTableView{
     
-    tableView.delegate = self;
-    tableView.dataSource = self;
-    tableView.backgroundColor = [UIColor redColor];
-    tableView.contentInset = UIEdgeInsetsMake(200, 0, 0, 0);
+    self.specialTableView.delegate = self;
+    self.specialTableView.dataSource = self;
+    self.specialTableView.rowHeight = 50;
+    self.specialTableView.backgroundColor = [UIColor clearColor];
     
-    self.isNeedChangeFrame = YES;
-    self.lastOffsetY = -200;
-    
-    [tableView reloadData];
-    
-    self.tableView = tableView;
-    
-    self.tableView.contentOffset = CGPointMake(0, -200);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        
+        self.isMaxType = [self judgeIsMaxType];
+        self.specialHeaderViewH = [self calculateTbaleViewHeight:self.specialDataArray.count];
+        
+        self.specialTableView.tableHeaderView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width,self.specialHeaderViewH)];
+        self.specialTableView.tableHeaderView.backgroundColor = [UIColor clearColor];
+        [self.specialTableView reloadData];
+        
+        if ([self.presenerDelegate respondsToSelector:@selector(mtGroupPresenter:changeTableViewTopAndNeedTableView:)]) {
+            [self.presenerDelegate mtGroupPresenter:self changeTableViewTopAndNeedTableView:YES];
+        }
+    });
+}
+/**
+ 移除操作
+ */
+-(void)removeAll{
+   
+    [self.specialTableView removeFromSuperview];
+    self.specialTableView = nil;
+    self.specialHeaderViewH = 0;
+    self.isMaxType = NO;
     
 }
-#pragma mark - tableview的datasource
+/**
+ 键盘是弹起来还是没有弹起来
+ 
+ @param isUp Yes：弹起来
+ */
+-(void)keyBoardChangeIsUP:(BOOL)isUp{
+    if (self.specialTableView.frame.size.height > 0) {
+        if (isUp) {
+           self.specialHeaderViewH = self.specialHeaderViewH - self.keyBoardH;
+        }else{
+            self.specialHeaderViewH = self.specialHeaderViewH + self.keyBoardH;
+           
+        }
+        self.specialTableView.tableHeaderView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, self.specialHeaderViewH)];
+        self.specialTableView.tableHeaderView.backgroundColor = [UIColor clearColor];
+        [self.specialTableView reloadData];
+    }
+}
+
+#pragma mark - 内部实现的操作
+/**
+ 计算tableview的headerview的高度
+
+ @param dataCount 数组个数
+ @return 高度
+ */
+-(CGFloat)calculateTbaleViewHeight:(NSUInteger)dataCount{
+    if (self.isMaxType) {
+        return 200;
+    }else{
+        CGFloat height = self.specialDataArray.count * self.specialTableView.rowHeight;
+        return  self.specialTableView.frame.origin.y - height ;
+    }
+}
+/**
+ 是否是大于整个屏幕装不满的那种类型
+
+ @return YES:是
+ */
+-(BOOL)judgeIsMaxType{
+    int count = ([UIScreen mainScreen].bounds.size.height - self.specialTableView.frame.origin.y)/self.specialTableView.rowHeight;
+    if (count < self.specialDataArray.count) {
+        return YES;
+    }
+    return NO;
+}
+#pragma mark - specialTableView的datasource
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 100;
+    return self.specialDataArray.count;
 }
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     static NSString * const cellID = @"cellId";
@@ -73,58 +146,10 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellID];
         
     }
-    cell.textLabel.text = [NSString stringWithFormat:@"aaa -- %zd",indexPath.row];
+    cell.backgroundColor = [UIColor yellowColor];
+    cell.textLabel.text = self.specialDataArray[indexPath.row];
     return cell;
 }
-#pragma mark - tableview 的 delegate
-- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate{
-    
-    if (decelerate == NO) {
-        
-        NSLog(@"停止移动了");
-        NSLog(@"%f",scrollView.contentOffset.y);
-        
-        CGFloat offsetY = scrollView.contentOffset.y;
-        if (offsetY > 0) {
-            offsetY = 0;
-        }else if (offsetY <= 0){
-            offsetY = fabs(offsetY);
-        }
-        self.lastOffsetY = scrollView.contentOffset.y;
-        if ([self.presenerDelegate respondsToSelector:@selector(isNeedChangeFrame:distanceY:limitY:)]) {
-            [self.presenerDelegate isNeedChangeFrame:self.isNeedChangeFrame distanceY:offsetY limitY:200];
-            self.tableView.contentOffset = CGPointMake(0,0);
-        }
-    }
-}
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
-    
-   
-    NSLog(@"停止移动了");
-    NSLog(@"%f",scrollView.contentOffset.y);
-    
-    CGFloat offsetY = scrollView.contentOffset.y;
-    if (offsetY > 0) {
-        offsetY = 0;
-    }else if (offsetY <= 0){
-        offsetY = fabs(offsetY);
-    }
-    self.lastOffsetY = scrollView.contentOffset.y;
-    if ([self.presenerDelegate respondsToSelector:@selector(isNeedChangeFrame:distanceY:limitY:)]) {
-        [self.presenerDelegate isNeedChangeFrame:self.isNeedChangeFrame distanceY:offsetY limitY:200];
-        self.tableView.contentOffset = CGPointMake(0,0);
-    }
-}
-- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView{
-    NSLog(@"将要开始移动");
-    
-    if ([self.presenerDelegate respondsToSelector:@selector(isNeedChangeFrame:distanceY:limitY:)]) {
-        
-        [self.presenerDelegate isNeedChangeFrame:self.isNeedChangeFrame distanceY:0 limitY:200];
-        self.tableView.contentOffset = CGPointMake(0,self.lastOffsetY);
-    }
-}
-#pragma mark - 关于tableivew的frame的处理
 
 
 

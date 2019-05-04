@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2C59EE12227D78B6008A7DCE /* MTGroupSpecialTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C59EE11227D78B6008A7DCE /* MTGroupSpecialTableView.m */; };
 		466081E3EB7D28E56C722527 /* Pods_TestTableView_TestTableViewTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69D8D9D89E8F33F67E27595E /* Pods_TestTableView_TestTableViewTests.framework */; };
 		B46BA12C227C85E2003F2F0F /* NSLayoutConstraint+MASDebugAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = B46BA113227C85E2003F2F0F /* NSLayoutConstraint+MASDebugAdditions.m */; };
 		B46BA12D227C85E2003F2F0F /* ViewController+MASAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = B46BA11C227C85E2003F2F0F /* ViewController+MASAdditions.m */; };
@@ -49,6 +50,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2C59EE10227D78B6008A7DCE /* MTGroupSpecialTableView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTGroupSpecialTableView.h; sourceTree = "<group>"; };
+		2C59EE11227D78B6008A7DCE /* MTGroupSpecialTableView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTGroupSpecialTableView.m; sourceTree = "<group>"; };
 		31A53A59D26DE9B2C6CF8DCA /* Pods-TestTableViewUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TestTableViewUITests.debug.xcconfig"; path = "Target Support Files/Pods-TestTableViewUITests/Pods-TestTableViewUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		355450A1C49BE750D66BBC1F /* Pods_TestTableView.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TestTableView.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4016E71720DDF5045563AE37 /* Pods-TestTableViewUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TestTableViewUITests.release.xcconfig"; path = "Target Support Files/Pods-TestTableViewUITests/Pods-TestTableViewUITests.release.xcconfig"; sourceTree = "<group>"; };
@@ -220,6 +223,8 @@
 				B48C9F9F227C1B3D0050980C /* ViewController.m */,
 				B48C9FCD227C1EC70050980C /* MTGroupSpecialPresenter.h */,
 				B48C9FCE227C1EC70050980C /* MTGroupSpecialPresenter.m */,
+				2C59EE10227D78B6008A7DCE /* MTGroupSpecialTableView.h */,
+				2C59EE11227D78B6008A7DCE /* MTGroupSpecialTableView.m */,
 				B48C9FA1227C1B3D0050980C /* Main.storyboard */,
 				B48C9FA4227C1B3F0050980C /* Assets.xcassets */,
 				B48C9FA6227C1B3F0050980C /* LaunchScreen.storyboard */,
@@ -455,6 +460,7 @@
 				B48C9FAB227C1B3F0050980C /* main.m in Sources */,
 				B46BA131227C85E2003F2F0F /* NSArray+MASAdditions.m in Sources */,
 				B46BA12D227C85E2003F2F0F /* ViewController+MASAdditions.m in Sources */,
+				2C59EE12227D78B6008A7DCE /* MTGroupSpecialTableView.m in Sources */,
 				B46BA12E227C85E2003F2F0F /* MASCompositeConstraint.m in Sources */,
 				B48C9F9D227C1B3D0050980C /* AppDelegate.m in Sources */,
 				B46BA132227C85E2003F2F0F /* View+MASAdditions.m in Sources */,

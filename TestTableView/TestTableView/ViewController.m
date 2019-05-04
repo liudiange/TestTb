@@ -9,9 +9,7 @@
 #import "ViewController.h"
 #import "MTGroupSpecialPresenter.h"
 #import "Masonry/Masonry.h"
-
-
-
+#import "MTGroupSpecialTableView.h"
 
 @interface ViewController ()<UITextFieldDelegate,UITableViewDelegate,UITableViewDataSource,MTGroupSpecialPresenterDelegate>
 
@@ -19,24 +17,19 @@
 @property (weak, nonatomic) IBOutlet UITextField *textField;
 @property (weak, nonatomic) IBOutlet UITableView *mainTableView;
 
-
 @property (nonatomic, strong) MTGroupSpecialPresenter *groupSpecialPresenter;
-@property (nonatomic, strong) UITableView *specialTableView;
+
 
 
 
 @end
 @implementation ViewController
-- (UITableView *)specialTableView{
-    if (!_specialTableView) {
-        self.specialTableView = [[UITableView alloc] init];
-    }
-    return _specialTableView;
-}
-
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    self.textField.layer.cornerRadius = 20;
+    self.textField.layer.masksToBounds = YES;
     
     self.groupSpecialPresenter = [[MTGroupSpecialPresenter alloc] init];
     self.groupSpecialPresenter.presenerDelegate = self;
@@ -58,14 +51,18 @@
  */
 -(void)showOrHideSpecialTableView:(NSString *)textFieldText singleText:(NSString *)singleText{
     if ([self.groupSpecialPresenter isAllowShowSpecialTableView:textFieldText singleText:singleText]) { // 允许出现@界面
-        [self.view addSubview:self.specialTableView];
-        [self.specialTableView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.top.left.right.mas_equalTo(self.view);
-            make.bottom.mas_equalTo(self.textField);
+        if (!self.groupSpecialPresenter.specialTableView) {
+            self.groupSpecialPresenter.specialTableView = [[MTGroupSpecialTableView alloc] init];
+        }
+        [self.view addSubview:self.groupSpecialPresenter.specialTableView];
+        [self.self.groupSpecialPresenter.specialTableView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.right.mas_equalTo(self.view);
+            make.top.mas_equalTo(self.view).offset(self.textField.frame.origin.y);
+            make.bottom.mas_equalTo(self.textField).offset(-45);
         }];
-        [self.groupSpecialPresenter configureTableView:self.specialTableView];
-    }else{
-        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self.groupSpecialPresenter configureTableView];
+        });
     }
     
 }
@@ -84,41 +81,49 @@
     cell.textLabel.text = [NSString stringWithFormat:@"%zd",indexPath.row];
     return cell;
 }
-#pragma mark presenter的delegate
-/**
- 改变tableview的frame
- 
- @param isNeedFrame 是否需要改变frame
- @param distanceY :tableview 距离顶部的y 值
- @param limitY :tableview 距离顶部的y 值
- */
--(void)isNeedChangeFrame:(BOOL)isNeedFrame distanceY:(CGFloat)distanceY limitY:(CGFloat)limitY{
-    if (isNeedFrame) {
-        [self.specialTableView mas_updateConstraints:^(MASConstraintMaker *make) {
-            
-            make.top.mas_equalTo(self.view).offset(distanceY > limitY ? limitY:distanceY);
-        }];
-        
-    }
-    
-    
+#pragma mark - mainTableView 的 lelegate
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [self.textField resignFirstResponder];
 }
-
+#pragma mark presenter的delegate
+-(void)mtGroupPresenter:(MTGroupSpecialPresenter *)presenter changeTableViewTopAndNeedTableView:(BOOL)isNeed{
+    if (!isNeed) {
+        [self.groupSpecialPresenter.specialTableView mas_updateConstraints:^(MASConstraintMaker *make) {
+            make.top.mas_equalTo(self.view).offset(self.textField.frame.origin.y);
+        }];
+        [UIView animateWithDuration:0.25 animations:^{
+            [self.view layoutIfNeeded];
+        } completion:^(BOOL finished) {
+            [presenter removeAll];
+        }];
+    }else{
+            [self.groupSpecialPresenter.specialTableView mas_updateConstraints:^(MASConstraintMaker *make) {
+                make.top.mas_equalTo(self.view);
+            }];
+            [UIView animateWithDuration:0.25 animations:^{
+                [self.view layoutIfNeeded];
+            }];
+    }
+}
 #pragma mark - 其他事件的响应
 - (void)keyboardChanged:(NSNotification *)info{
     
     CGRect rect = [info.userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
     CGFloat shouldHeight = [UIScreen mainScreen].bounds.size.height - rect.origin.y;
     self.texFieldBottomConstraint.constant = shouldHeight;
+    if (shouldHeight) {
+        self.groupSpecialPresenter.keyBoardH = shouldHeight;
+    }
+    if (shouldHeight > 0) { // 键盘弹起来
+        [self.groupSpecialPresenter keyBoardChangeIsUP:YES];
+        
+    }else{ // 键盘消失
+       [self.groupSpecialPresenter keyBoardChangeIsUP:NO];
+    }
+    
     [UIView animateWithDuration:0.25 animations:^{
         [self.view layoutIfNeeded];
     }];
 }
-- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
-    
-    [self.view endEditing:YES];
-    
-}
-
 
 @end

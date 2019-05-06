@@ -17,7 +17,6 @@
         return NO;
     }else{
         if (point.y < self.tableHeaderView.frame.size.height) {
-            
             return NO;
         }
         return YES;

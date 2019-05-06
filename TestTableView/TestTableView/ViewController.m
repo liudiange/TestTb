@@ -16,7 +16,7 @@
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *texFieldBottomConstraint;
 @property (weak, nonatomic) IBOutlet UITextField *textField;
 @property (weak, nonatomic) IBOutlet UITableView *mainTableView;
-
+@property (nonatomic, strong) UITextField *replyTextField;
 @property (nonatomic, strong) MTGroupSpecialPresenter *groupSpecialPresenter;
 
 
@@ -36,6 +36,8 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardChanged:) name:UIKeyboardWillChangeFrameNotification object:nil];
     
 }
+
+#pragma mark - textfield 的 delegate
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string{
     
@@ -83,7 +85,25 @@
 }
 #pragma mark - mainTableView 的 lelegate
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    [self.textField resignFirstResponder];
+    if (indexPath.row == 0) {
+        self.replyTextField = [[UITextField alloc] init];
+        self.replyTextField.backgroundColor = [UIColor redColor];
+        [self.view addSubview:self.replyTextField];
+        [self.replyTextField mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.right.mas_equalTo(self.view);
+            make.bottom.mas_equalTo(self.textField).offset(-45);
+            make.height.mas_equalTo(60);
+        }];
+        if (self.groupSpecialPresenter.specialTableView) {
+            self.groupSpecialPresenter.specialTableView.contentInset = UIEdgeInsetsMake(0, 0, 60, 0);
+            CGFloat offsetY = self.groupSpecialPresenter.specialTableView.contentOffset.y;
+            [self.groupSpecialPresenter.specialTableView setContentOffset:CGPointMake(0, offsetY + 60) animated:YES];
+            
+//            [self.groupSpecialPresenter.specialTableView reloadData];
+        }
+    }else{
+        [self.textField resignFirstResponder];
+    }
 }
 #pragma mark presenter的delegate
 -(void)mtGroupPresenter:(MTGroupSpecialPresenter *)presenter changeTableViewTopAndNeedTableView:(BOOL)isNeed{

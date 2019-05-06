@@ -100,7 +100,6 @@
            self.specialHeaderViewH = self.specialHeaderViewH - self.keyBoardH;
         }else{
             self.specialHeaderViewH = self.specialHeaderViewH + self.keyBoardH;
-           
         }
         self.specialTableView.tableHeaderView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, self.specialHeaderViewH)];
         self.specialTableView.tableHeaderView.backgroundColor = [UIColor clearColor];
